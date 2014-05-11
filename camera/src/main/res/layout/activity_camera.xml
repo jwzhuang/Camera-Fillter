@@ -2,13 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="${packageName}.${activityClass}"
-    android:background="@android:color/holo_red_dark">
+    tools:context="${packageName}.${activityClass}">
 
-    <FrameLayout
+    <com.kingnez.watermark.camera.CameraPreview
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:layout_alignParentTop="true" />
 
 </RelativeLayout>
