@@ -4,10 +4,32 @@
     android:layout_height="match_parent"
     tools:context="${packageName}.${activityClass}">
 
+    <View
+        android:id="@+id/camera_menu_top"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/white" />
+
+    <View
+        android:id="@+id/camera_square"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/camera_menu_top"
+        android:background="@android:color/transparent" />
+
     <com.kingnez.watermark.camera.CameraPreview
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@+id/camera_menu_top" />
+
+    <View
+        android:id="@+id/camera_menu_btm"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/camera_square"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/black" />
 
 </RelativeLayout>
