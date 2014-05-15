@@ -3,12 +3,14 @@ package com.kingnez.watermark.camera;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 
 public class CameraActivity extends Activity {
 
     private CameraPreview mPreview;
     private View mCameraSquare, mMenuTop, mMenuBtm;
+    private Button mCameraShutter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +20,13 @@ public class CameraActivity extends Activity {
         mCameraSquare = findViewById(R.id.camera_square);
         mMenuTop = findViewById(R.id.camera_menu_top);
         mMenuBtm = findViewById(R.id.camera_menu_btm);
+        mCameraShutter = (Button) findViewById(R.id.camera_shutter);
+        mCameraShutter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPreview.takePicture();
+            }
+        });
     }
 
     @Override

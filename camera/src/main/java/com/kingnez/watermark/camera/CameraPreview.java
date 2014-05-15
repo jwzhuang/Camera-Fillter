@@ -2,9 +2,13 @@ package com.kingnez.watermark.camera;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -13,6 +17,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +35,8 @@ public class CameraPreview extends SurfaceView
     private Camera mCamera;
     private Camera.CameraInfo mCameraInfo;
     private SurfaceHolder mHolder;
+    private Camera.Size mPictureSize;
+    private int mRotateDegrees;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -36,7 +46,44 @@ public class CameraPreview extends SurfaceView
         if (context instanceof Activity) {
             mActivity = (Activity) context;
         }
-        setOnTouchListener(this);
+//        setOnTouchListener(this);
+    }
+
+    public void takePicture() {
+        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                if (success) {
+                    mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                        @Override
+                        public void onPictureTaken(byte[] data, Camera camera) {
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                            mCamera.stopPreview();
+                            Matrix matrix = new Matrix();
+                            matrix.postRotate((float)mRotateDegrees);
+                            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+                            Bitmap sizeBitmap = Bitmap.createScaledBitmap(rotatedBitmap, 640, 640 * rotatedBitmap.getHeight() / rotatedBitmap.getWidth(), true);
+                            Bitmap squareBitmap = Bitmap.createBitmap(sizeBitmap, 0, 0, 640, 640);
+                            File pictureFile = new File(Environment.getExternalStorageDirectory(), "image.jpg");
+                            if (pictureFile != null) {
+                                try {
+                                    FileOutputStream fos = new FileOutputStream(pictureFile);
+                                    BufferedOutputStream bos = new BufferedOutputStream(fos);
+                                    squareBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                    bos.flush();
+                                    bos.close();
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            mCamera.startPreview();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
@@ -84,7 +131,8 @@ public class CameraPreview extends SurfaceView
             mCamera.stopPreview();
 
             if (mActivity != null) {
-                mCamera.setDisplayOrientation(getCameraDisplayOrientation(mActivity, mCameraInfo));
+                mRotateDegrees = getCameraDisplayOrientation(mActivity, mCameraInfo);
+                mCamera.setDisplayOrientation(mRotateDegrees);
             }
 
             Camera.Parameters parameters = mCamera.getParameters();
@@ -106,10 +154,10 @@ public class CameraPreview extends SurfaceView
             }
 
             // get best picture size
-            Camera.Size pictureSize = getOptimalSize(
+            mPictureSize = getOptimalSize(
                     mCamera.getParameters().getSupportedPictureSizes(), aspectRatio);
-            if (pictureSize != null) {
-                parameters.setPictureSize(pictureSize.width, pictureSize.height);
+            if (mPictureSize != null) {
+                parameters.setPictureSize(mPictureSize.width, mPictureSize.height);
             }
 
             // set focus mode
@@ -166,6 +214,7 @@ public class CameraPreview extends SurfaceView
     private static Camera.Size getOptimalSize(final List<Camera.Size> sizes,
                                               final double targetRatio) {
         Camera.Size optimalSize = null;
+        int side = 640;
 
         if (sizes != null) {
             final double ASPECT_TOLERANCE = 0.1;
@@ -174,8 +223,8 @@ public class CameraPreview extends SurfaceView
             for (Camera.Size size : sizes) {
                 double ratio = (double) size.width / size.height;
                 if (Math.abs(ratio - targetRatio) <= ASPECT_TOLERANCE) {
-                    if (optimalSize == null
-                            || optimalSize.height * optimalSize.width < size.height * size.width) {
+                    if (optimalSize == null || (optimalSize.height < side && optimalSize.height < size.height)
+                            || (size.height > side && size.height < optimalSize.height)) {
                         optimalSize = size;
                     }
                 }
