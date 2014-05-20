@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +32,8 @@ import java.util.List;
  */
 public class CameraPreview extends SurfaceView
         implements SurfaceHolder.Callback, View.OnTouchListener, Camera.AutoFocusCallback {
+
+    private static final String DateTimeFormat = "yyyyMMdd-HHmmss";
 
     private Activity mActivity;
     private Camera mCamera;
@@ -64,18 +68,25 @@ public class CameraPreview extends SurfaceView
                             Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
                             Bitmap sizeBitmap = Bitmap.createScaledBitmap(rotatedBitmap, 640, 640 * rotatedBitmap.getHeight() / rotatedBitmap.getWidth(), true);
                             Bitmap squareBitmap = Bitmap.createBitmap(sizeBitmap, 0, 0, 640, 640);
-                            File pictureFile = new File(Environment.getExternalStorageDirectory(), "image.jpg");
-                            if (pictureFile != null) {
-                                try {
-                                    FileOutputStream fos = new FileOutputStream(pictureFile);
-                                    BufferedOutputStream bos = new BufferedOutputStream(fos);
-                                    squareBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                                    bos.flush();
-                                    bos.close();
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                            File imageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/ShiSe");
+                            if (!imageDir.exists()) {
+                                imageDir.mkdir();
+                            }
+                            if (imageDir.isDirectory()) {
+                                File pictureFile = new File(imageDir.getPath(),
+                                        new SimpleDateFormat(DateTimeFormat).format(new Date()) + ".jpg");
+                                if (pictureFile != null) {
+                                    try {
+                                        FileOutputStream fos = new FileOutputStream(pictureFile);
+                                        BufferedOutputStream bos = new BufferedOutputStream(fos);
+                                        squareBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                        bos.flush();
+                                        bos.close();
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                             mCamera.startPreview();

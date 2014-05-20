@@ -32,10 +32,18 @@
         android:layout_alignParentBottom="true"
         android:background="@android:color/black" >
 
+        <ImageButton
+            android:id="@+id/btn_select"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="15dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" />
+
         <Button
             android:id="@+id/camera_shutter"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_centerInParent="true" />
 
     </RelativeLayout>
