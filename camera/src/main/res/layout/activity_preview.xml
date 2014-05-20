@@ -11,18 +11,18 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true" />
 
-    <WebView
+    <com.kingnez.watermark.camera.WatermarkView
         android:id="@+id/watermark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignBottom="@+id/image_view"
-        android:background="@android:color/transparent" />
+        android:layout_alignBottom="@+id/image_view" />
 
     <RelativeLayout
         android:id="@+id/preview_menu_btm"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/black"
         android:layout_below="@+id/image_view">
 
         <Button

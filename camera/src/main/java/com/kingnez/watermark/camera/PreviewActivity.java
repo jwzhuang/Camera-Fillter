@@ -10,10 +10,8 @@ import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -32,8 +30,8 @@ public class PreviewActivity extends Activity implements EditTextDialog.EditText
     private static final String DateTimeFormat = "yyyyMMdd-HHmmss";
 
     private RelativeLayout mImagePreview;
-    private ImageView mImageView;
-    private WebView mWatermarkView;
+    private SquareImageView mImageView;
+    private WatermarkView mWatermarkView;
     private Button mLeftRotation, mRightRotation;
     private ImageButton mWatermarkSelect, mWatermarkSave;
 
@@ -51,12 +49,11 @@ public class PreviewActivity extends Activity implements EditTextDialog.EditText
 
         mImagePreview = (RelativeLayout) findViewById(R.id.image_preview);
 
-        mImageView = (ImageView) findViewById(R.id.image_view);
+        mImageView = (SquareImageView) findViewById(R.id.image_view);
         ImageLoader.getInstance().displayImage(imagePath, mImageView);
 
-        mWatermarkView = (WebView) findViewById(R.id.watermark);
-        mWatermarkView.setBackgroundColor(0x00000000);
-        mWatermarkView.getSettings().setJavaScriptEnabled(true);
+        mWatermarkView = (WatermarkView) findViewById(R.id.watermark);
+
         mWatermarkView.addJavascriptInterface(this, "watermark");
 
         mLeftRotation = (Button) findViewById(R.id.rotation_left);
