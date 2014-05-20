@@ -34,6 +34,9 @@ public class CameraActivity extends Activity {
         mSelectPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                Intent intent = new Intent(CameraActivity.this, PreviewActivity.class);
+//                intent.putExtra(IMAGE_PATH, "assets://img.jpg");
+//                startActivity(intent);
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);

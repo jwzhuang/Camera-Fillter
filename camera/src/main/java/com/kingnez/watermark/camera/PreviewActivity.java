@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,13 +18,28 @@ import android.widget.RelativeLayout;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class PreviewActivity extends Activity {
 
+public class PreviewActivity extends Activity implements EditTextDialog.EditTextDialogListener {
+
+    private static final String DateTimeFormat = "yyyyMMdd-HHmmss";
+
+    private RelativeLayout mImagePreview;
     private ImageView mImageView;
     private WebView mWatermarkView;
     private Button mLeftRotation, mRightRotation;
-    private ImageButton mWatermarkSelect;
+    private ImageButton mWatermarkSelect, mWatermarkSave;
+
+    public void clickToEdit(final String tag) {
+        new EditTextDialog().show(getFragmentManager(), tag);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +49,15 @@ public class PreviewActivity extends Activity {
         Intent intent = getIntent();
         String imagePath = intent.getStringExtra(CameraActivity.IMAGE_PATH);
 
-        RelativeLayout imagePreview = (RelativeLayout) findViewById(R.id.image_preview);
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imagePreview.getLayoutParams();
-        layoutParams.height = layoutParams.width;
-        imagePreview.setLayoutParams(layoutParams);
+        mImagePreview = (RelativeLayout) findViewById(R.id.image_preview);
 
         mImageView = (ImageView) findViewById(R.id.image_view);
         ImageLoader.getInstance().displayImage(imagePath, mImageView);
 
         mWatermarkView = (WebView) findViewById(R.id.watermark);
         mWatermarkView.setBackgroundColor(0x00000000);
+        mWatermarkView.getSettings().setJavaScriptEnabled(true);
+        mWatermarkView.addJavascriptInterface(this, "watermark");
 
         mLeftRotation = (Button) findViewById(R.id.rotation_left);
         mLeftRotation.setOnClickListener(new View.OnClickListener() {
@@ -65,6 +80,38 @@ public class PreviewActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mWatermarkView.loadUrl("http://mipush.kingnez.im/watermark.html");
+            }
+        });
+
+        mWatermarkSave = (ImageButton) findViewById(R.id.watermark_save);
+        mWatermarkSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mImagePreview.setDrawingCacheEnabled(true);
+                mImagePreview.buildDrawingCache();  // must be called before getDrawingCache()
+                Bitmap bitmap = mImagePreview.getDrawingCache();
+                Bitmap square = Bitmap.createBitmap(bitmap, 0, 0, mImagePreview.getWidth(), mImagePreview.getWidth());
+                File imageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/ShiSe");
+                if (!imageDir.exists()) {
+                    imageDir.mkdir();
+                }
+                if (imageDir.isDirectory()) {
+                    File pictureFile = new File(imageDir.getPath(),
+                            new SimpleDateFormat(DateTimeFormat).format(new Date()) + ".jpg");
+                    if (pictureFile != null) {
+                        try {
+                            FileOutputStream fos = new FileOutputStream(pictureFile);
+                            BufferedOutputStream bos = new BufferedOutputStream(fos);
+                            square.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                            bos.flush();
+                            bos.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         });
     }
@@ -94,5 +141,10 @@ public class PreviewActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDialogPositiveClick(String tag, String content) {
+        mWatermarkView.loadUrl("javascript:setText('" + tag + "', '" + content + "')");
     }
 }
