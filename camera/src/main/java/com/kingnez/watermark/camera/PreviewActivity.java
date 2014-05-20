@@ -99,7 +99,7 @@ public class PreviewActivity extends Activity implements EditTextDialog.EditText
                         try {
                             FileOutputStream fos = new FileOutputStream(pictureFile);
                             BufferedOutputStream bos = new BufferedOutputStream(fos);
-                            square.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                            Bitmap.createScaledBitmap(square, 640, 640, true).compress(Bitmap.CompressFormat.JPEG, 100, bos);
                             bos.flush();
                             bos.close();
                         } catch (FileNotFoundException e) {
