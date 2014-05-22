@@ -42,6 +42,14 @@
             android:layout_alignParentTop="true" />
 
         <ImageButton
+            android:id="@+id/watermark_filter"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/watermark_select" />
+
+        <ImageButton
             android:id="@+id/watermark_select"
             android:layout_width="100dp"
             android:layout_height="100dp"

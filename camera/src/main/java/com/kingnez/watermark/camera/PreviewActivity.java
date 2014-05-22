@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import cn.Ragnarok.BitmapFilter;
+
 
 public class PreviewActivity extends Activity implements EditTextDialog.EditTextDialogListener {
 
@@ -33,7 +35,9 @@ public class PreviewActivity extends Activity implements EditTextDialog.EditText
     private SquareImageView mImageView;
     private WatermarkView mWatermarkView;
     private Button mLeftRotation, mRightRotation;
-    private ImageButton mWatermarkSelect, mWatermarkSave;
+    private ImageButton mWatermarkSelect, mWatermarkSave, mWatermarkFilter;
+    private int mFilterStyle = BitmapFilter.GRAY_STYLE;
+    private Bitmap source = null;
 
     public void clickToEdit(final String tag) {
         new EditTextDialog().show(getFragmentManager(), tag);
@@ -108,6 +112,22 @@ public class PreviewActivity extends Activity implements EditTextDialog.EditText
                             e.printStackTrace();
                         }
                     }
+                }
+            }
+        });
+
+        mWatermarkFilter = (ImageButton) findViewById(R.id.watermark_filter);
+        mWatermarkFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (source == null) {
+                    source = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+                }
+                Bitmap bitmap = BitmapFilter.changeStyle(source, mFilterStyle);
+                mImageView.setImageBitmap(bitmap);
+                mFilterStyle++;
+                if (mFilterStyle > BitmapFilter.TOTAL_FILTER_NUM) {
+                    mFilterStyle = BitmapFilter.GRAY_STYLE;
                 }
             }
         });
