@@ -2,12 +2,14 @@ package com.kingnez.watermark.camera;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -76,16 +78,24 @@ public class CameraPreview extends SurfaceView
                                 File pictureFile = new File(imageDir.getPath(),
                                         new SimpleDateFormat(DateTimeFormat).format(new Date()) + ".jpg");
                                 if (pictureFile != null) {
+                                    boolean saved = false;
                                     try {
                                         FileOutputStream fos = new FileOutputStream(pictureFile);
                                         BufferedOutputStream bos = new BufferedOutputStream(fos);
                                         squareBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
                                         bos.flush();
                                         bos.close();
+                                        saved = true;
                                     } catch (FileNotFoundException e) {
                                         e.printStackTrace();
                                     } catch (IOException e) {
                                         e.printStackTrace();
+                                    }
+                                    if (saved) {
+                                        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                        Uri uri = Uri.fromFile(pictureFile);
+                                        intent.setData(uri);
+                                        mActivity.sendBroadcast(intent);
                                     }
                                 }
                             }

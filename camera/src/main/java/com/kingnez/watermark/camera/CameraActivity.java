@@ -3,8 +3,10 @@ package com.kingnez.watermark.camera;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +23,7 @@ public class CameraActivity extends Activity {
     private View mCameraSquare, mMenuTop, mMenuBtm;
     private Button mCameraShutter;
     private ImageButton mSelectPhoto;
+    private MediaScannerConnection mConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,7 @@ public class CameraActivity extends Activity {
 //                intent.putExtra(IMAGE_PATH, "assets://img.jpg");
 //                startActivity(intent);
                 Intent intent = new Intent();
-                intent.setType("image/*");
+                intent.setDataAndType(Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/ShiSe"), "*/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent,
                         "Select Picture"), SELECT_PICTURE);
